@@ -1,8 +1,23 @@
-#coding:utf-8
-#author:wolf@future-sec
+# coding:utf-8
+# author:wolf@future-sec
 
-import getopt,sys,Queue,threading,socket,struct,urllib2,time,os,re,json,base64,cgi,array,ssl
+import getopt
+import sys
+import Queue
+import threading
+import socket
+import struct
+import urllib2
+import time
+import os
+import re
+import json
+import base64
+import cgi
+import array
+import ssl
 
+# global variables
 queue = Queue.Queue()
 mutex = threading.Lock()
 timeout = 10
@@ -10,12 +25,15 @@ port_list = []
 re_data = {}
 port_data = {}
 statistics = {}
+
 try:
     _create_unverified_https_context = ssl._create_unverified_context
 except AttributeError:
     pass
 else:
     ssl._create_default_https_context = _create_unverified_https_context
+
+
 class UnicodeStreamFilter:
     def __init__(self, target):
         self.target = target
@@ -27,8 +45,12 @@ class UnicodeStreamFilter:
             s = s.decode("utf-8")
         s = s.encode(self.encode_to, self.errors).decode(self.encode_to)
         self.target.write(s)
+
+
 if sys.stdout.encoding == 'cp936':
     sys.stdout = UnicodeStreamFilter(sys.stdout)
+
+
 class SendPingThr(threading.Thread):
     def __init__(self, ipPool, icmpPacket, icmpSocket, timeout=3):
         threading.Thread.__init__(self)
@@ -46,6 +68,7 @@ class SendPingThr(threading.Thread):
             except socket.timeout:
                 break
         time.sleep(self.timeout)
+
 
 class Nscan:
     def __init__(self, timeout=3):
@@ -96,6 +119,8 @@ class Nscan:
                 if not sendThr.isAlive():
                     break
         return recvFroms & ipPool
+
+
 def get_ac_ip(ip_list):
     try:
         s = Nscan()
@@ -104,6 +129,8 @@ def get_ac_ip(ip_list):
     except:
         print 'The current user permissions unable to send icmp packets'
         return ip_list
+
+
 class ThreadNum(threading.Thread):
     def __init__(self,queue):
         threading.Thread.__init__(self)
@@ -128,6 +155,8 @@ class ThreadNum(threading.Thread):
                     if server_type:log('server',task_host,task_port,server_type.strip())
             except Exception,e:
                 continue
+
+
 def get_code(header,html):
     try:
         m = re.search(r'<meta.*?charset\=(.*?)"(>| |\/)',html, flags=re.I)
@@ -142,6 +171,8 @@ def get_code(header,html):
             if m:return m.group(1)
     except:
         pass
+
+
 def get_web_info(host,port):
     h_server,h_xpb,title_str,html = '','','',''
     try:
@@ -166,6 +197,8 @@ def get_web_info(host,port):
     except Exception,e:
         pass
     return str(header),title_str
+
+
 def scan_port(host,port):
     try:
         socket.setdefaulttimeout(timeout/2)
@@ -183,6 +216,8 @@ def scan_port(host,port):
             return 'NULL'
     except Exception,e:
         return 'NULL'
+
+
 def log(scan_type,host,port,info=''):
     mutex.acquire()
     try:
@@ -208,6 +243,8 @@ def log(scan_type,host,port,info=''):
     except Exception,e:
         pass
     mutex.release()
+
+
 def read_config(config_type):
     if config_type == 'server_info':
         mark_list=[]
@@ -221,6 +258,8 @@ def read_config(config_type):
         except:
             print 'Configuration file read failed'
             exit()
+
+
 def server_discern(host,port,data):
     server = ''
     for mark_info in mark_list:
@@ -235,6 +274,8 @@ def server_discern(host,port,data):
         except Exception,e:
             continue
     return server
+
+
 def get_ip_list(ip):
     ip_list = []
     iptonum = lambda x:sum([256**j*int(i) for j,i in enumerate(x.split('.')[::-1])])
@@ -271,6 +312,8 @@ def get_ip_list(ip):
         else:
             print "-h wrong format"
     return ip_list
+
+
 def get_port_list(port):
     port_list = []
     if '.ini' in port:
@@ -281,6 +324,8 @@ def get_port_list(port):
     else:
         port_list = port.split(',')
     return port_list
+
+
 def write_result():
     re_json = []
     re_array = {}
@@ -308,11 +353,13 @@ def write_result():
             mo_html = mo_html.replace('$adinfo$',str(json.dumps(re_json)))
             mo_html = mo_html.replace('$data$',json.dumps(port_data))
             mo_html = mo_html.replace('$statistics$',td_html)
-            result = open(ip + "-" + str(int(time.time())) + ".html","w")
+            result = open(ip + "-" + str(int(time.time())) + ".html", "w")
             result.write(mo_html)
             result.close()
-    except Exception,e:
+    except Exception, e:
         print 'Results output failure'
+
+
 def t_join(m_count):
     tmp_count = 0
     i = 0
@@ -324,24 +371,34 @@ def t_join(m_count):
         else:
             i = 0
         tmp_count = ac_count
-        #print ac_count,queue.qsize()
+        # print ac_count,queue.qsize()
         if (queue.empty() and threading.activeCount() <= 1) or i > 5:
             break
-if __name__=="__main__":
+
+
+if __name__ == "__main__":
     mark_list = read_config('server_info')
     msg = '''
-Scanning a network asset information script,author:wolf@future-sec.
+Scanning a network asset information script. 
+Original Author: wolf@future-sec.
+New version edited by:  BLKStone (http://blkstone.github.io/)
 Usage: python F-NAScan.py -h 192.168.1 [-p 21,80,3306] [-m 50] [-t 10] [-n]
     '''
+
     if len(sys.argv) < 2:
         print msg
     try:
-        options,args = getopt.getopt(sys.argv[1:],"h:p:m:t:n")
+        options, args = getopt.getopt(sys.argv[1:], "h:p:m:t:n")
+
         ip = ''
-        noping = False
-        port = '21,22,23,25,53,80,110,139,143,389,443,445,465,873,993,995,1080,1723,1433,1521,3306,3389,3690,5432,5800,5900,6379,7001,8000,8001,8080,8081,8888,9200,9300,9080,9999,11211,27017'
+        no_ping = True
+        port = '21,22,23,25,53,80,110,139,143,389,443,445,465,873,993,995,' + \
+               '1080,1723,1433,1521,3306,3389,3690,5432,5800,5900,6379,7001,' +\
+               '8000,8001,8080,8081,8888,9200,9300,9080,9999,11211,27017'
         m_count = 100
-        for opt,arg in options:
+
+        # parse option
+        for opt, arg in options:
             if opt == '-h':
                 ip = arg
             elif opt == '-p':
@@ -351,21 +408,27 @@ Usage: python F-NAScan.py -h 192.168.1 [-p 21,80,3306] [-m 50] [-t 10] [-n]
             elif opt == '-t':
                 timeout = int(arg)
             elif opt == '-n':
-                noping = True
+                no_ping = True
+
         if ip:
             ip_list = get_ip_list(ip)
             port_list = get_port_list(port)
-            if not noping:ip_list=get_ac_ip(ip_list)
+
+            # ping detection for active ip
+            if not no_ping:
+                ip_list = get_ac_ip(ip_list)
+
+            # build scan ip task queue
             for ip_str in ip_list:
                 for port_int in port_list:
-                    queue.put(':'.join([ip_str,port_int]))
+                    queue.put(':'.join([ip_str, port_int]))
             for i in range(m_count):
                 t = ThreadNum(queue)
                 t.setDaemon(True)
                 t.start()
             t_join(m_count)
             write_result()
-    except Exception,e:
+    except Exception, e:
         print e
         print msg
 
