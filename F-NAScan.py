@@ -1,5 +1,11 @@
-# coding:utf-8
-# author:wolf@future-sec
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Time    : 2017/11/30 0030 下午 21:20
+# @Author  : wolf@future-sec
+# @Editor  : BLKStone
+# @Site    : http://blkstone.github.io
+# @File    : dev_common.py
+# @Software: PyCharm
 
 import getopt
 import sys
@@ -370,7 +376,8 @@ class ReportBuilder(object):
                 record = ip_str + ":" + port_str
                 output_list.append(record)
 
-        result_name = ip + '_' + str(datetime.datetime.now()) + '_text.txt'
+        date_label = datetime.date.strftime(datetime.datetime.now(), "%Y-%m-%d %Hh%Mm%Ss")
+        result_name = ip + '_' + date_label + '_text.txt'
         writer = dev_common.ListCooker()
         writer.dump(output_list, result_name)
 
@@ -384,7 +391,6 @@ class ReportBuilder(object):
 
         try:
             ip_list = re_data.keys()
-
             # ip_list.sort()
             ip_list = sorted(ip_list, key=lambda ip: long(''.join(["%02X" % long(i) for i in ip.split('.')]), 16))
 
@@ -421,7 +427,9 @@ class ReportBuilder(object):
                 mo_html = mo_html.replace('$adinfo$', str(json.dumps(re_json)))
                 mo_html = mo_html.replace('$data$', json.dumps(port_data))
                 mo_html = mo_html.replace('$statistics$', td_html)
-                result = open(ip + "-" + str(int(time.time())) + ".html", "w")
+
+                date_label = datetime.date.strftime(datetime.datetime.now(), "%Y-%m-%d %Hh%Mm%Ss")
+                result = open(ip + "-" + date_label + ".html", "w")
                 result.write(mo_html)
                 result.close()
         except Exception, e:

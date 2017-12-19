@@ -1,0 +1,2 @@
+#### https://github.com/danielmiessler/SecLists/blob/master/Passwords/10k_most_common.txt
+#### https://github.com/jeanphorn/wordlist

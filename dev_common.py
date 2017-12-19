@@ -51,11 +51,16 @@ class ListCooker(object):
     def __init__(self):
         pass
 
+    # 注意在读取时
+    # 如果该行存在 '####' 则会被忽略
     def load(self, path='default.txt'):
         python_list = []
         print('loading... ' + path)
         with open(path, 'r') as f:
             for line in f.readlines():
+                # '####' for comment
+                if '####' in line:
+                    continue
                 if line[-1] == '\n':
                     python_list.append(line[:-1])
                 else:
@@ -102,6 +107,29 @@ class URLAnalyzer(object):
             else:
                 wash_urls.append('http://' + url)
         return wash_urls
+
+
+class FNAParser(object):
+    def __init__(self):
+        pass
+
+    def ftp_parse(self, input, output='ftp_hydra.txt'):
+        '''
+        hydra -L dict/ftp_username.txt -P dict/top100.txt -e ns 192.168.0.1 ftp
+        hydra -L dict/ftp_username.txt -P dict/top100.txt -e ns ftp://[10.15.44.172/24]/
+
+        hydra -L dict/ftp_username.txt -P dict/top100.txt -e ns -M report/ftp.txt -o hydra_output.txt -Vv ftp
+        '''
+        lreader = ListCooker()
+        fna_ftp_list = lreader.load(input)
+        result = []
+        for ele in fna_ftp_list:
+            result.append(ele.split(' ')[0].strip())
+        lreader.dump(result, output)
+
+
+
+
 
 
 
