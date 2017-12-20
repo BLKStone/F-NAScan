@@ -117,7 +117,6 @@ class FNAParser(object):
         '''
         hydra -L dict/ftp_username.txt -P dict/top100.txt -e ns 192.168.0.1 ftp
         hydra -L dict/ftp_username.txt -P dict/top100.txt -e ns ftp://[10.15.44.172/24]/
-
         hydra -L dict/ftp_username.txt -P dict/top100.txt -e ns -M report/ftp.txt -o hydra_output.txt -Vv ftp
         '''
         lreader = ListCooker()

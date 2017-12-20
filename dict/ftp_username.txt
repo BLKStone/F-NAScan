@@ -11,6 +11,8 @@ daemon
 sync
 rsync
 www
+robot
+client
 mail
 camera
 supervisor

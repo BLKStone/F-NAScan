@@ -366,7 +366,7 @@ class ReportBuilder(object):
     def __init__(self):
         pass
 
-    def write_file(self):
+    def write_file(self, output_path='default_fna_scan_result.txt'):
         output_list = []
         ip_list = re_data.keys()
         ip_list = sorted(ip_list, key=lambda ip: long(''.join(["%02X" % long(i) for i in ip.split('.')]), 16))
@@ -377,11 +377,13 @@ class ReportBuilder(object):
                 output_list.append(record)
 
         date_label = datetime.date.strftime(datetime.datetime.now(), "%Y-%m-%d %Hh%Mm%Ss")
-        result_name = ip + '_' + date_label + '_text.txt'
+
+        if output_path == 'default_fna_scan_result.txt':
+            result_name = ip + '_' + date_label + '_text.txt'
+        else:
+            result_name = output_path
         writer = dev_common.ListCooker()
         writer.dump(output_list, result_name)
-
-
 
     def write_result(self):
 
@@ -465,7 +467,7 @@ Usage: python F-NAScan.py -h 192.168.1 [-p 21,80,3306] [-m 50] [-t 10] [-n]
     if len(sys.argv) < 2:
         print msg
     try:
-        options, args = getopt.getopt(sys.argv[1:], "h:p:m:t:n")
+        options, args = getopt.getopt(sys.argv[1:], "h:p:m:t:n:o")
 
         ip = ''
         no_ping = True
@@ -473,6 +475,7 @@ Usage: python F-NAScan.py -h 192.168.1 [-p 21,80,3306] [-m 50] [-t 10] [-n]
                '1080,1723,1433,1521,3306,3389,3690,5432,5800,5900,6379,7001,' +\
                '8000,8001,8080,8081,8443,8888,9200,9300,9080,9999,11211,27017'
         m_count = 8
+        output_path = 'default_fna_scan_result.txt'
 
         # parse option
         for opt, arg in options:
@@ -486,6 +489,8 @@ Usage: python F-NAScan.py -h 192.168.1 [-p 21,80,3306] [-m 50] [-t 10] [-n]
                 timeout = int(arg)
             elif opt == '-n':
                 no_ping = True
+            elif opt == '-o':
+                output_path = arg
 
         if ip:
             ip_list = get_ip_list(ip)
@@ -511,7 +516,7 @@ Usage: python F-NAScan.py -h 192.168.1 [-p 21,80,3306] [-m 50] [-t 10] [-n]
             # Export scan report
             rb = ReportBuilder()
             rb.write_result()
-            rb.write_file()
+            rb.write_file(output_path)
 
     except Exception, e:
         print e
