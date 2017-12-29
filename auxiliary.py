@@ -20,7 +20,6 @@ def extract_ftp(path):
         if len(record) == 1:
             continue
         else:
-
             if 'ftp' in record[1]:
                 if 'default' not in record[1]:
                     count = count + 1

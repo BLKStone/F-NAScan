@@ -115,3 +115,6 @@ qazwsxedc
 qazwsx
 changem3
 987654321
+sysadmin
+adminuser
+P@ssw0rd
