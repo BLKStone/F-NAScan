@@ -15,6 +15,7 @@ robot
 client
 mail
 camera
+guest
 supervisor
 zabbix
 tomcat

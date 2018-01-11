@@ -6,6 +6,9 @@
 # @File    : dev_common.py
 # @Software: PyCharm
 
+import validators
+
+import socket
 import datetime
 import pickle
 
@@ -127,7 +130,56 @@ class FNAParser(object):
         lreader.dump(result, output)
 
 
+class DomainChecker(object):
+    def __init__(self):
+        pass
 
+    # 判断字符串是否为数字
+    @staticmethod
+    def is_number(string):
+        try:
+            num = int(string)
+        except Exception,e:
+            return False
+        return True
+
+    # 判断字符串是否为IP
+    @staticmethod
+    def is_ip_format(string):
+        try:
+            socket.inet_aton(string)
+            # legal
+        except Exception, e:
+            # illegal
+            return False
+        return True
+
+    # 是否是主机，或域名
+    @staticmethod
+    def is_host(string):
+        if string is None:
+            # 排除 None 的情况
+            # print "domain?", 'false'
+            return False
+        else:
+            if not DomainChecker.is_number(string):
+                # 不是数字 不是None
+                if DomainChecker.is_ip_format(string):
+                    # 该字符串是 ip
+                    # print 'domain?', 'ip', row[0].value
+                    return True
+                else:
+                    # 使用 validator 进一步确认域名
+                    flag = validators.domain(string)
+                    if flag:  # flag 为 True
+                        # print 'domain?', flag, row[0].value
+                        return True
+                    else:
+                        return False
+            else:
+                # 数字(端口号)排除
+                # print 'domain?', 'number'
+                return False
 
 
 
