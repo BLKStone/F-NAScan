@@ -306,7 +306,7 @@ class AssetsFinderWasher(object):
                                 current_ip = row_info[0]
                             else:
                                 try:
-                                    if is_ip_format(row_info[0]):
+                                    if DomainChecker.is_ip_format(row_info[0]):
                                         # 忽略 URL 中包含 IP 的资产
                                         # 即
                                         # 类似 http://182.153.221.9:8080/index.php 的 URL 不会被统计
