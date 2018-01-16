@@ -17,6 +17,8 @@ import datetime
 import pickle
 
 
+# 计时器类
+# 用于对一段代码进行计时
 class TimeKeeper(object):
     def __init__(self):
         self.start_time = None
@@ -36,7 +38,9 @@ class TimeKeeper(object):
         return self.elapsed_time
 
 
-# 将 python 对象存储为文件
+# 对象Cooker
+# 对 pickle 的进一步封装
+# 便于将 python 对象存储为文件以及反向操作
 class ObjectCooker(object):
     def __init__(self):
         pass
@@ -53,14 +57,16 @@ class ObjectCooker(object):
         return python_object
 
 
-# 将 List 存储为文件
+# ListCooker
+# 对读写文件进行封装
+# 便于 txt 文件 与 python list 之间的相互转化
 class ListCooker(object):
     def __init__(self):
         pass
 
     # 注意在读取时
     # 如果该行存在 '####' 则会被忽略
-    def load(self, path='default.txt'):
+    def load_with_comment(self, path='default.txt'):
         python_list = []
         print('loading... ' + path)
         with open(path, 'r') as f:
@@ -68,6 +74,17 @@ class ListCooker(object):
                 # '####' for comment
                 if '####' in line:
                     continue
+                if line[-1] == '\n':
+                    python_list.append(line[:-1])
+                else:
+                    python_list.append(line)
+        return python_list
+
+    def load(self, path='default.txt'):
+        python_list = []
+        print('loading... ' + path)
+        with open(path, 'r') as f:
+            for line in f.readlines():
                 if line[-1] == '\n':
                     python_list.append(line[:-1])
                 else:
@@ -85,7 +102,11 @@ class ListCooker(object):
         f.close()
 
 
-class URLAnalyzer(object):
+# FOFA 的 数据清洗辅助脚本
+# 功能：
+# 1. 从 fofa 数据中 对域名进行去重
+# 2. 对 fofa蜘蛛 导出的数据中的 URL 进行协议标识补全
+class FOFAWasher(object):
     def __init__(self):
         pass
 
@@ -116,16 +137,22 @@ class URLAnalyzer(object):
         return wash_urls
 
 
+# FNA-Scanner 辅助脚本
+# 用于处理 FNA-Scanner 输出的结果
+# 将端口扫描结果转化为可以作为Hydra输入的格式
 class FNAParser(object):
     def __init__(self):
         pass
 
     def ftp_parse(self, input, output='ftp_hydra.txt'):
         '''
+        Hydra 常见用法举例
         hydra -L dict/ftp_username.txt -P dict/top100.txt -e ns 192.168.0.1 ftp
         hydra -L dict/ftp_username.txt -P dict/top100.txt -e ns ftp://[10.15.44.172/24]/
         hydra -L dict/ftp_username.txt -P dict/top100.txt -e ns -M report/ftp.txt -o hydra_output.txt -Vv ftp
+
         '''
+
         lreader = ListCooker()
         fna_ftp_list = lreader.load(input)
         result = []
@@ -161,9 +188,20 @@ class DomainChecker(object):
             return False
         return True
 
+    # 判断一个字符串是否为域名
+    @staticmethod
+    def is_domain(string):
+        # 直接利用 validators 来验证域名是否合法
+        indicator = validators.domain(string)
+        if indicator:  # indicator 为 True
+            # print 'domain?', indicator, row[0].value
+            return True
+        else:
+            return False
+
     # 是否是主机，或域名
     @staticmethod
-    def is_host(string):
+    def temp_method(string):
         if string is None:
             # 排除 None 的情况
             # print "domain?", 'false'
