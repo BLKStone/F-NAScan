@@ -6,8 +6,12 @@
 # @File    : dev_common.py
 # @Software: PyCharm
 
+# 外部依赖
+from openpyxl import load_workbook
+from openpyxl import Workbook
 import validators
 
+# 基本依赖
 import socket
 import datetime
 import pickle
@@ -201,6 +205,95 @@ class DNSAnalyzer(object):
         return ip
 
 
+# 对资产发现平台导出的数据进行清洗的辅助类
+class AssetsFinderWasher(object):
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def webinfo_extrat(input_path, output_path):
+        # 从 Excel (来自资产发现平台)中导出【web信息】区域的内容
+        # 输出结果为单 sheet 的 Excel
+        # 需要获取的核心数据为
+        # URL(包含了域名信息) 机构名称 IP
+        #
+        # 举个例子
+        # input_path = 'data/p1/assets2018.xlsx'
+        # output_path = 'output.xlsx'
+
+        # 存储需要写入输出excel的信息
+        sheet_data = []
+
+        # 将 Excel 读取到内存
+        wb = load_workbook(filename=input_path, read_only=True)
+        for sheet_name in wb.sheetnames:
+            ws = wb[sheet_name]
+            print u'处理sheet...', sheet_name
+
+            # 可以选择忽略某些特定名称的sheet
+            # if sheet_name == 'sh.cn':
+            #     print 'pass'
+            #     continue
+
+            webinfo_flag = False
+
+            for row in ws.rows:
+                # 存储行信息
+                row_info = []
+
+                # openpyxl 读取数据的常规操作
+                # print 'row:', row
+                # print 'cell:', row[0]
+                # print 'value:', row[0].value
+
+                if row[0].value is not None:
+
+                    if u'web信息' in row[0].value:
+                        # print row[0].value
+                        webinfo_flag = True
+                    else:
+                        pass
+
+                    if webinfo_flag:
+                        # 读取行信息，封装在row_info(list)中
+                        for cell in row:
+                            # print cell.value,
+                            row_info.append(cell.value)
+                        # print ' '
+                        print row_info
+
+                        if len(row_info) != 3:
+                            current_ip = '-'  # 默认值
+                            if row_info[5] is None:
+                                current_ip = row_info[0]
+                            else:
+                                try:
+                                    if is_ip_format(row_info[0]):
+                                        # 忽略 URL 中包含 IP 的资产
+                                        # 即
+                                        # 类似 http://182.153.221.9:8080/index.php 的 URL 不会被统计
+                                        # 类似 http://example.com:80/ 则会被纳入统计
+                                        pass
+                                    else:
+                                        # 重组 URL
+                                        # 写入 待输出的 sheet_data (list) 中
+                                        if row_info[1] == '80':
+                                            new_col = row_info[2] + '://' + row_info[0]
+                                        else:
+                                            new_col = row_info[2] + '://' + row_info[0] + ':' + row_info[1]
+                                        sheet_data.append([row_info[0], new_col, row_info[6], current_ip])
+                                except Exception, e:
+                                    pass
+                else:
+                    pass
+
+        # 将结果写进新文件
+        new_wb = Workbook()
+        new_ws = new_wb.active
+        for ele in sheet_data:
+            new_ws.append(ele)
+
+        new_wb.save(output_path)
 
 
 
