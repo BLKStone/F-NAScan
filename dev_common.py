@@ -130,6 +130,9 @@ class FNAParser(object):
         lreader.dump(result, output)
 
 
+# 域名检查器
+# 检查域名(字符串)是否合法
+# 判断一个字符串是否是域名
 class DomainChecker(object):
     def __init__(self):
         pass
@@ -167,7 +170,7 @@ class DomainChecker(object):
                 if DomainChecker.is_ip_format(string):
                     # 该字符串是 ip
                     # print 'domain?', 'ip', row[0].value
-                    return True
+                    return False
                 else:
                     # 使用 validator 进一步确认域名
                     flag = validators.domain(string)
@@ -180,6 +183,23 @@ class DomainChecker(object):
                 # 数字(端口号)排除
                 # print 'domain?', 'number'
                 return False
+
+
+# DNS解析器
+# 将域名转换为IP
+class DNSAnalyzer(object):
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def lookup(domain):
+        ip = ''
+        try:
+            ip = socket.gethostbyname(domain)
+        except Exception,e:
+            return 'DNS_Resolve_Error'
+        return ip
+
 
 
 
