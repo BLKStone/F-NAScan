@@ -20,3 +20,6 @@ supervisor
 zabbix
 tomcat
 weblogic
+support
+shell
+enable

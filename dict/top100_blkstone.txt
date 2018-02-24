@@ -119,3 +119,8 @@ sysadmin
 adminuser
 P@ssw0rd
 guest
+1234
+12345
+ubnt
+support
+system
