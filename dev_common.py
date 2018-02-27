@@ -68,7 +68,7 @@ class ListCooker(object):
     # 如果该行存在 '####' 则会被忽略
     def load_with_comment(self, path='default.txt'):
         python_list = []
-        print('loading... ' + path)
+        print(u'[info] comment loading... ' + path)
         with open(path, 'r') as f:
             for line in f.readlines():
                 # '####' for comment
@@ -82,7 +82,7 @@ class ListCooker(object):
 
     def load(self, path='default.txt'):
         python_list = []
-        print('loading... ' + path)
+        print(u'[info] loading... ' + path)
         with open(path, 'r') as f:
             for line in f.readlines():
                 if line[-1] == '\n':
@@ -93,12 +93,12 @@ class ListCooker(object):
 
     def dump(self, python_list=None, path='default.txt'):
         with open(path, 'w') as f:
-            print('dumping... '+path)
+            print(u'[info] dumping... '+path)
             for ele in python_list:
                 if ele[:-1] == '\n':
-                    f.write(ele.strip())
+                    f.write(ele.strip().encode('utf-8'))
                 else:
-                    f.write(ele.strip()+'\n')
+                    f.write(ele.strip().encode('utf-8')+'\n')
         f.close()
 
 
