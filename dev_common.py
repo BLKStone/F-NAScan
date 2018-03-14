@@ -334,6 +334,18 @@ class AssetsFinderWasher(object):
         new_wb.save(output_path)
 
 
+# 文本书记员
+# 新建一个文件并写入一些内容
+class TextClerk(object):
+
+    def __init__(self):
+        pass
+
+    def memorize(self, path, content):
+        with open(path, 'w') as f:
+            f.write(content)
+        f.close()
+
 
 
 
