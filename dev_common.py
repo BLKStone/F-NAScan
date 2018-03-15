@@ -341,10 +341,46 @@ class TextClerk(object):
     def __init__(self):
         pass
 
+    # 将一些内容记录到 txt 文件
     def memorize(self, path, content):
         with open(path, 'w') as f:
             f.write(content)
         f.close()
+
+    # 以末尾添加方式新增内容
+    def memorize_append(self, path, content):
+        with open(path, 'a') as f:
+            f.write(content)
+        f.close()
+
+    # 写 log
+    # 判断文件是否存在
+    # 不存在就新建文件
+    def do_log(self, tag, content, suffix, separator='#'*100+'\n', log_path='log/'):
+        log_path += '{date}_{sfx}.txt'.format(date=self._get_current_date(), sfx=suffix)
+
+        try:
+            with open(log_path, 'a') as f:
+                timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + '\n'
+                f.write(separator + '[{tag}] '.format(tag=tag) + timestamp + content + '\n')
+            f.close()
+        except IOError, e:
+            print e
+            print '[Error] Please mkdir' + log_path
+
+    def _get_current_time(self):
+        """
+        获取当前时间
+        :return:<type 'str'> datatime
+        """
+        return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+    def _get_current_date(self):
+        """
+            获取当前日期
+            :return:<type 'str'> data
+        """
+        return time.strftime("%Y-%m-%d", time.localtime())
 
 
 
